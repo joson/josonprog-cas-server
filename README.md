@@ -1,146 +1,100 @@
 CAS Overlay Template
-=======================
+============================
 
-Generic CAS WAR overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local CAS war overlays.
+Generic CAS WAR overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local CAS war overlays. The CAS services management overlay is available [here](https://github.com/apereo/cas-services-management-overlay).
 
 # Versions
 
-- CAS `6.1.x`
-- JDK `11`
-
-# Overview
-
-To build the project, use:
-
-```bash
-# Use --refresh-dependencies to force-update SNAPSHOT versions
-./gradlew[.bat] clean build
+```xml
+<cas.version>5.2.x</cas.version>
 ```
+
+# Requirements
+
+* JDK 1.8+
+
+# Configuration
+
+The `etc` directory contains the configuration files and directories that need to be copied to `/etc/cas/config`.
+
+# Build
 
 To see what commands are available to the build script, run:
 
 ```bash
-./gradlew[.bat] tasks
+./build.sh help
 ```
 
-To launch into the CAS command-line shell:
+To package the final web application, run:
 
 ```bash
-./gradlew[.bat] downloadShell runShell
+./build.sh package
 ```
 
-To fetch and overlay a CAS resource or view, use:
+To update `SNAPSHOT` versions run:
 
 ```bash
-./gradlew[.bat] getResource -PresourceName=[resource-name]
+./build.sh package -U
 ```
-
-To list all available CAS views and templates:
-
-```bash
-./gradlew[.bat] listTemplateViews
-```
-
-To unzip and explode the CAS web application file and the internal resources jar:
-
-```bash
-./gradlew[.bat] explodeWar
-```
-
-# Configuration
-
-- The `etc` directory contains the configuration files and directories that need to be copied to `/etc/cas/config`.
-
-```bash
-./gradlew[.bat] copyCasConfiguration
-```
-
-- The specifics of the build are controlled using the `gradle.properties` file.
-
-## Adding Modules
-
-CAS modules may be specified under the `dependencies` block of the [Gradle build script](build.gradle):
-
-```gradle
-dependencies {
-    compile "org.apereo.cas:cas-server-some-module:${project.casVersion}"
-    ...
-}
-```
-
-To collect the list of all project modules and dependencies:
-
-```bash
-./gradlew[.bat] allDependencies
-```
-
-### Clear Gradle Cache
-
-If you need to, on Linux/Unix systems, you can delete all the existing artifacts (artifacts and metadata) Gradle has downloaded using:
-
-```bash
-# Only do this when absolutely necessary
-rm -rf $HOME/.gradle/caches/
-```
-
-Same strategy applies to Windows too, provided you switch `$HOME` to its equivalent in the above command.
 
 # Deployment
 
-- Create a keystore file `thekeystore` under `/etc/cas`. Use the password `changeit` for both the keystore and the key/certificate entries. This can either be done using the JDK's `keytool` utility or via the following command:
-
-```bash
-./gradlew[.bat] createKeystore
-```
-
+- Create a keystore file `thekeystore` under `/etc/cas`. Use the password `changeit` for both the keystore and the key/certificate entries.
 - Ensure the keystore is loaded up with keys and certificates of the server.
 
 On a successful deployment via the following methods, CAS will be available at:
 
+* `http://cas.server.name:8080/cas`
 * `https://cas.server.name:8443/cas`
 
 ## Executable WAR
 
-Run the CAS web application as an executable WAR:
+Run the CAS web application as an executable WAR.
 
 ```bash
-./gradlew[.bat] run
+./build.sh run
 ```
 
-Debug the CAS web application as an executable WAR:
+## Spring Boot
+
+Run the CAS web application as an executable WAR via Spring Boot. This is most useful during development and testing.
 
 ```bash
-./gradlew[.bat] debug
+./build.sh bootrun
 ```
 
-Run the CAS web application as a *standalone* executable WAR:
+### Warning!
 
-```bash
-./gradlew[.bat] clean executable
+Be careful with this method of deployment. `bootRun` is not designed to work with already executable WAR artifacts such that CAS server web application. YMMV. Today, uses of this mode ONLY work when there is **NO OTHER** dependency added to the build script and the `cas-server-webapp` is the only present module. See [this issue](https://github.com/apereo/cas/issues/2334) and [this issue](https://github.com/spring-projects/spring-boot/issues/8320) for more info.
+
+
+## Spring Boot App Server Selection
+
+There is an app.server property in the `pom.xml` that can be used to select a spring boot application server.
+It defaults to `-tomcat` but `-jetty` and `-undertow` are supported. 
+It can also be set to an empty value (nothing) if you want to deploy CAS to an external application server of your choice.
+
+```xml
+<app.server>-tomcat<app.server>
+```
+
+## Windows Build
+
+If you are building on windows, try `build.cmd` instead of `build.sh`. Arguments are similar but for usage, run:  
+
+```
+build.cmd help
 ```
 
 ## External
 
-Deploy the binary web application file `cas.war` after a successful build to a servlet container of choice.
+Deploy resultant `target/cas.war`  to a servlet container of choice.
 
-## Docker
 
-The following strategies outline how to build and deploy CAS Docker images.
+## Command Line Shell
 
-### Jib
-
-The overlay embraces the [Jib Gradle Plugin](https://github.com/GoogleContainerTools/jib) to provide easy-to-use out-of-the-box tooling for building CAS docker images. Jib is an open-source Java containerizer from Google that lets Java developers build containers using the tools they know. It is a container image builder that handles all the steps of packaging your application into a container image. It does not require you to write a Dockerfile or have Docker installed, and it is directly integrated into the overlay.
+Invokes the CAS Command Line Shell. For a list of commands either use no arguments or use `-h`. To enter the interactive shell use `-sh`.
 
 ```bash
-./gradlew build jibDockerBuild
-```
-
-### Dockerfile
-
-You can also use the native Docker tooling and the provided `Dockerfile` to build and run CAS.
-
-```bash
-chmod +x *.sh
-./docker-build.sh
-./docker-run.sh
+./build.sh cli
 ```
