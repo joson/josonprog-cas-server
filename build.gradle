@@ -18,7 +18,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "https://oss.sonatype.org/content/repositories/public" }
     maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
     maven { url "https://repo.spring.io/milestone/" }
     maven { url "https://repo.spring.io/snapshot/" }
@@ -26,7 +26,7 @@ repositories {
 }
 
 def casServerVersion = project.'cas.version'
-def casWebApplicationBinaryName = "cas.war"
+def casWebApplicationBinaryName = "josonprog-cas-server.war"
 
 project.ext."casServerVersion" = casServerVersion
 project.ext."casWebApplicationBinaryName" = casWebApplicationBinaryName
